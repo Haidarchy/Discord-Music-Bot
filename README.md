@@ -1,15 +1,11 @@
 "# Discord-Music-Bot" 
 
-===============================================================================
 Discord Music Bot Project with https://github.com/dtsvetkovuni on JavaScript.
-===============================================================================
 
-===============================================================================
 !!! The bot currently works only on one discord server (GUILD). !!!
-===============================================================================
 
 
-                        !!!IMPORTANT!!!
+                        
 To emplement your bot into the code you need to get: 
 "CLIENT_ID", "TOKEN" from https://discord.com/developers/applications 
 "GUILD_ID" from the Discord server you want the bot to be.
