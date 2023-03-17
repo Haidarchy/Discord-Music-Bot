@@ -4,14 +4,14 @@ const { EmbedBuilder } = require("discord.js")
 module.exports = {
 	data: new SlashCommandBuilder().setName("shuffle").setDescription("Shuffles the queue"),
 	run: async ({ client, interaction }) => {
-		const queue = client.player.getQueue(interaction.guildId)
+		const queue = client.player.nodes.get(interaction.guildId)
 
-		if (!queue || queue.previousTracks.length==0) return await interaction.editReply("**There are no songs to shuffle.**")
+		if (!queue) return await interaction.editReply("**There are no songs to shuffle.**")
 
-		queue.shuffle()
+		queue.tracks.shuffle()
 		await interaction.editReply({
 			embeds: [
-				new EmbedBuilder().setDescription(`**The queue of ${queue.tracks.length} songs have been shuffled!**`)
+				new EmbedBuilder().setDescription(`**The queue of ${queue.getSize()} songs have been shuffled!**`)
 			]
 		})
 	},

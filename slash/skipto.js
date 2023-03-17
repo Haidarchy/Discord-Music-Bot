@@ -6,14 +6,14 @@ module.exports = {
     .addNumberOption((option) => 
         option.setName("tracknumber").setDescription("The track to skip to").setMinValue(1).setRequired(true)),
 	run: async ({ client, interaction }) => {
-		const queue = client.player.getQueue(interaction.guildId)
+		const queue = client.player.nodes.get(interaction.guildId)
 
-		if (!queue || (queue.previousTracks.length==0 && queue.playing == false)) return await interaction.editReply("There are no songs in the queue")
+		if (!queue) return await interaction.editReply("There are no songs in the queue")
 
         const trackNum = interaction.options.getNumber("tracknumber")
-        if (trackNum > queue.tracks.length)
+        if (trackNum > queue.getSize())
             return await interaction.editReply("**Invalid track number**")
-		queue.skipTo(trackNum - 1)
+		queue.node.skipTo(trackNum - 1)
 
         await interaction.editReply({
 			embeds: [

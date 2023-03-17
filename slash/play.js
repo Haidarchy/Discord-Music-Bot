@@ -12,27 +12,28 @@ module.exports = {
 
         let queue = undefined
 
-        if (await client.player.getQueue(interaction.guild) == undefined) {
-            queue = await client.player.createQueue(interaction.guild, { autoSelfDeaf: true, leaveOnEnd: false, leaveOnEndCooldown: 5, leaveOnStop: true, leaveOnEmpty: false, leaveOnEmptyCooldown: 5, ytdlOptions: { quality: "highestaudio", filter: "audioonly", highWaterMark: 1 << 25 } })
-        } else {
-            queue = await client.player.getQueue(interaction.guild)
-        }
-
-        if (!queue.connection) await queue.connect(interaction.member.voice.channel)
-
         let embed = new EmbedBuilder()
         let url = interaction.options.getString("url")
         const result = await client.player.search(url, {
             requestedBy: interaction.user,
             searchEngine: QueryType.AUTO
         })
-        if (result.tracks.length === 0) { return interaction.editReply("**No results**") }
+        if (result.tracks.size === 0) { return interaction.editReply("**No results**") }
+
+        if (await client.player.nodes.get(interaction.guildId) == undefined) {
+            // queue = await client.player.play(interaction.member.voice.channel, result, {nodeOptions: {metadata: {channel: interaction.channel,client: interaction.guild.members.me,requestedBy: interaction.user,},selfDeaf: true, leaveOnEnd: true, leaveOnEndCooldown: 300000, leaveOnStop: true, leaveOnEmpty: true, leaveOnEmptyCooldown: 300000, ytdlOptions: { quality: "highestaudio", filter: "audioonly", highWaterMark: 1 << 25 }}})
+            queue = await client.player.nodes.create(interaction.guild , {nodeOptions: {selfDeaf: true, leaveOnEnd: true, leaveOnEndCooldown: 300000, leaveOnStop: true, leaveOnEmpty: true, leaveOnEmptyCooldown: 300000, ytdlOptions: { quality: "highestaudio", filter: "audioonly", highWaterMark: 1 << 25 }, }})
+        } else {
+            queue = await client.player.nodes.get(interaction.guildId) // може би BUG
+        }
+
+        if (!queue.connection) await queue.connect(interaction.member.voice.channel)
 
         if (result.playlist != null) {
             const playlist = result.playlist
-            await queue.addTracks(result.tracks)
+            await queue.addTrack(result.tracks)
             embed
-                .setDescription(`**${result.tracks.length} songs from [${playlist.title}](${playlist.url}) have been added to the Queue**`)
+                .setDescription(`**${result.tracks.size} songs from [${playlist.title}](${playlist.url}) have been added to the Queue**`)
                 .setThumbnail(playlist.thumbnail.url)
         } else {
             const song = result.tracks[0]
@@ -43,7 +44,7 @@ module.exports = {
                 .setFooter({ text: `Duration: ${song.duration}` })
         }
 
-        if (!queue.playing) await queue.play()
+        if (!queue.isPlaying()) await queue.node.play()
         await interaction.editReply({
             embeds: [embed]
         })

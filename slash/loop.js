@@ -26,10 +26,10 @@ module.exports = {
 
         let queue = undefined
 
-        if (await client.player.getQueue(interaction.guild) == undefined) {
-            queue = await client.player.createQueue(interaction.guild, { autoSelfDeaf: true, leaveOnEnd: false, leaveOnEndCooldown: 5, leaveOnStop: true, leaveOnEmpty: false, leaveOnEmptyCooldown: 5, ytdlOptions: { quality: "highestaudio", filter: "audioonly", highWaterMark: 1 << 25 } })
+        if (await client.player.nodes.get(interaction.guildId) == undefined) {
+            queue = await client.player.nodes.create(interaction.guild , {nodeOptions: {selfDeaf: true, leaveOnEnd: true, leaveOnEndCooldown: 300000, leaveOnStop: true, leaveOnEmpty: true, leaveOnEmptyCooldown: 300000, ytdlOptions: { quality: "highestaudio", filter: "audioonly", highWaterMark: 1 << 25 }, }})
         } else {
-            queue = await client.player.getQueue(interaction.guild)
+            queue = await client.player.nodes.get(interaction.guildId)
         }
 
         let embed = new EmbedBuilder()
